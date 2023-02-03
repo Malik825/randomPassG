@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random Password Generator In Javascript</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,300;0,400;0,500;0,600;1,100;1,300&display=swap");
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        border: none;
+        outline: none;
+      }
+      :root {
+        --bg: #151515;
+        --bg-primary: #111;
+        --bg2: #222;
+        --bg3: #1b1b1b;
+        --light1: #eee;
+        --light2: #ccc;
+        --border: #444;
+      }
+      .light {
+        --bg: rgba(249, 249, 249, 0.9);
+        --bg-primary: #efefef;
+        --bg2: #ddd;
+        --bg3: #d8d8d8;
+        --light1: #333;
+        --border: #999;
+        --light2: #555;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--bg);
+        height: 100vh;
+      }
+      body.light {
+        background: rgba(249, 249, 249, 0.9);
+        -webkit-backdrop-filter: blur(15px);
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.25);
+      }
+      .container {
+        display: block;
+        width: 95%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .password-generator {
+        padding: 20px;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border);
+        color: var(--light1);
+        border-radius: 0.3rem;
+        font-size: 20px;
+        width: 380px;
+        font-family: "Poppins", sans-serif;
+        position: relative;
+      }
+
+      .password-generator img {
+        width: 35%;
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+        top: 65%;
+        padding: 8px;
+        border: 4px solid var(--border);
+        transform: translateY(-50%);
+        position: absolute;
+        right: 15px !important;
+      }
+      .password-generator h2 {
+        font-size: 1.5em;
+        margin-bottom: 0.5em;
+        border-bottom: 1px solid var(--border);
+      }
+      .switcher {
+        position: absolute;
+        display: block;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 45px;
+        height: 45px;
+        line-height: 45px;
+        border-radius: 50%;
+        color: var(--light1);
+        text-align: center;
+        z-index: 1;
+        border: 1.5px solid var(--border);
+        background-color: var(--bg3);
+      }
+      .password-generator div {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        position: relative;
+      }
+
+      .password {
+        width: 100%;
+        background-color: var(--bg2);
+        color: var(--light2);
+        height: 45px;
+        border: 1px solid var(--border);
+        position: relative;
+      }
+      .password.active {
+        box-shadow: 0 !important;
+        border: none;
+        background: transparent;
+      }
+      .password .error {
+        position: absolute;
+        left: 0;
+        height: 100%;
+        width: 00%;
+        background: #f44336;
+        top: 0;
+        display: block;
+        z-index: 999;
+        line-height: 42px;
+        padding: 0 5px;
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.4s ease-in-out;
+        box-shadow: 0 !important;
+      }
+
+      .password .error.active {
+        opacity: 1;
+        visibility: visible;
+        width: 100%;
+      }
+      .password p {
+        padding: 6px 10px;
+      }
+
+      .password i {
+        width: 45px;
+        height: 45px;
+        display: block;
+        line-height: 44px;
+        /* background: var(--bg); */
+        text-align: center;
+      }
+
+      .password-generator button {
+        display: block;
+        border-radius: 0.25em;
+        height: 50px;
+        width: 100%;
+        margin-top: 15px;
+        background-color: var(--bg3);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        text-transform: uppercase;
+        color: var(--light2);
+        font-weight: 500;
+        font-size: 17px;
+        transition: all 0.3s ease;
+      }
+      .password-generator button:hover {
+        background: var(--bg2);
+      }
+      .password-generator label {
+        display: block;
+        position: relative;
+        padding-left: 35px;
+
+        cursor: pointer;
+        font-size: 18px;
+      }
+      .password-generator label:not(:last-child) {
+        display: block;
+        margin-bottom: 0.6em;
+      }
+      .password-generator input[type="checkbox"] {
+        visibility: hidden;
+      }
+      .password-generator .geekmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 25px;
+        width: 25px;
+        background-color: var(--bg3);
+        border-radius: 50%;
+      }
+      .password-generator input:checked ~ .geekmark {
+        background-color: green;
+      }
+      .password-generator .geekmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+      }
+
+      .password-generator .geekmark:after {
+        left: 8px;
+        bottom: 5px;
+        width: 6px;
+        height: 12px;
+        border: solid white;
+        border-radius: 50%;
+        border-width: 0 4px 4px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+      }
+      .password-generator input:checked ~ .geekmark:after {
+        display: block;
+      }
+      input[type="number"] {
+        display: block;
+        background: var(--bg3);
+        width: 60px;
+        height: 50px;
+        color: var(--light2);
+        font-size: 1.5rem;
+        border: 1px solid var(--border);
+        padding: 7px;
+      }
+
+      .password-generator .firstLabel {
+        margin: 1.5rem 0 !important;
+        display: block;
+        background: var(--bg2);
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        border: 1px solid var(--border);
+      }
+      .firstLabel label {
+        padding: 0px 0rem 0 1rem !important;
+      }
+
+      @media (max-width: 457px) {
+        .password-generator {
+          width: 97%;
+          padding: 15px;
+        }
+        .password-generator button {
+          font-size: 14.5px;
+        }
+        .password-generator h2 {
+          font-size: 1em;
+          margin-bottom: 0.2em;
+          border-bottom: 1px solid var(--border);
+        }
+        .password-generator img {
+          width: 28%;
+        }
+        .password-generator label:not(:last-child) {
+          display: block;
+          margin-bottom: 0.26em;
+        }
+
+        .password-generator label {
+          font-size: 16px;
+        }
+      }
+      @media (max-width: 370px) {
+        .password-generator .firstLabel {
+          margin: 0.65em 0 !important;
+        }
+        .password-generator label:not(:last-child) {
+          display: block;
+          margin-bottom: 0.36em;
+        }
+        .password-generator img {
+          display: none;
+        }
+        .password-generator label {
+          font-size: 14px;
+          font-weight: 300;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="password-generator">
+        <a href="#" class="switcher"><i class="far fa-moon"></i></a>
+        <img
+          src="./Collage/cdbe59d15320476b93c097c61d1cfbeb_1618612469054.jpg"
+          alt=""
+        />
+        <h2>Password Generator</h2>
+        <div class="password">
+          <p id="passwordBox"></p>
+          <i class="far fa-clipboard" onclick="copyPassword()"></i>
+          <span class="error"></span>
+        </div>
+        <div class="firstLabel">
+          <label for="length">Length</label>
+          <input type="number" id="length" min="6" max="20" value="10" />
+        </div>
+        <div>
+          <label for="symbol">Include Symbol</label>
+          <input type="checkbox" id="symbol" checked />
+          <span class="geekmark"></span>
+        </div>
+        <div>
+          <label for="number">Include Number</label>
+          <input type="checkbox" id="number" checked />
+          <span class="geekmark"></span>
+        </div>
+        <div>
+          <label for="lowerCase">Include lowerCase</label>
+          <input type="checkbox" id="lowerCase" checked />
+          <span class="geekmark"></span>
+        </div>
+        <div>
+          <label for="upperCase">Include upperCase</label>
+          <input type="checkbox" id="upperCase" checked />
+          <span class="geekmark"></span>
+        </div>
+        <button onclick="createPassword()">Get Random Password</button>
+      </div>
+    </div>
+    <script>
+      const keys = {
+        upperCase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        lowerCase: "abcdefghijklmnopqrstuvwxyz",
+        number: "0123456789",
+        symbol: "@#$%^&*()_+~|}{[]></-=",
+      };
+      const getKey = [
+        function upperCase() {
+          return keys.upperCase[
+            Math.floor(Math.random() * keys.upperCase.length)
+          ];
+        },
+        function lowerCase() {
+          return keys.lowerCase[
+            Math.floor(Math.random() * keys.lowerCase.length)
+          ];
+        },
+        function number() {
+          return keys.number[Math.floor(Math.random() * keys.number.length)];
+        },
+        function symbol() {
+          return keys.symbol[Math.floor(Math.random() * keys.symbol.length)];
+        },
+      ];
+
+      function createPassword() {
+        const upper = document.getElementById("upperCase").checked;
+        const lower = document.getElementById("lowerCase").checked;
+        const number = document.getElementById("number").checked;
+        const symbol = document.getElementById("symbol").checked;
+        if (upper + lower + number + symbol === 0) {
+          alert("Please check atleast one box!");
+          return;
+        }
+        const passwordBox = document.getElementById("passwordBox");
+        const length = document.getElementById("length");
+        let password = "";
+        while (length.value > password.length) {
+          let keyToAdd = getKey[Math.floor(Math.random() * getKey.length)];
+          let isChecked = document.getElementById(keyToAdd.name).checked;
+          if (isChecked) {
+            password += keyToAdd();
+          }
+        }
+        passwordBox.innerHTML = password;
+      }
+      let passwordLen = document.getElementById("length");
+      let passwordHide = document.querySelector(".password");
+      let errorText = document.querySelector(".error");
+      function maxPasswordLength() {
+        if (passwordLen.value > 20) {
+          passwordHide.classList.add("active");
+          errorText.classList.add("active");
+          errorText.innerHTML = "Password limit is 20";
+        } else {
+          passwordHide.classList.remove("active");
+          errorText.classList.remove("active");
+          errorText.innerHTML = "";
+        }
+      }
+
+      passwordLen.addEventListener("input", maxPasswordLength);
+
+      function copyPassword() {
+        const textarea = document.createElement("textarea");
+        const password = document.getElementById("passwordBox").innerText;
+        if (!password) {
+          return;
+        }
+        textarea.value = password;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+        alert("Password copied to clipboard");
+      }
+      /* ============ Theme Switcher ============ */
+
+      let switchHandler = document.querySelector(".switcher");
+      let switchIcon = document.querySelector(".fa-moon");
+      let firstTheme = localStorage.getItem("light");
+      changeTheme(+firstTheme);
+
+      function changeTheme(islight) {
+        if (islight) {
+          document.body.classList.toggle("light");
+          switchIcon.classList.replace("fa-moon", "fa-sun");
+          localStorage.setItem("light", 1);
+        } else {
+          document.body.classList.remove("light");
+          switchIcon.classList.replace("fa-sun", "fa-moon");
+          localStorage.setItem("light", 0);
+        }
+      }
+
+      switchHandler.addEventListener("click", (e) => {
+        e.preventDefault();
+        changeTheme(
+          !document.querySelector("body").classList.contains("light")
+        );
+      });
+    </script>
+  </body>
+</html>
